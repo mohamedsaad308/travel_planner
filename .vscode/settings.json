@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "planner/bin/python3",
+    "python.pythonPath": "planner/bin/python",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true
 }
