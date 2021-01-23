@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from flask_wtf.file import FileField, FileAllowed
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, FileField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from travel_planner.models import User
 from flask_login import current_user
@@ -25,9 +26,10 @@ class LoginForm(FlaskForm):
 
 class UpdateAccountForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
+    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
     first_name = StringField('First Name', validators=[DataRequired(), Length(min=2, max=20)])
     last_name = StringField('Last Name', validators=[DataRequired(), Length(min=2, max=20)])
-    submit = SubmitField('Sign up')
+    submit = SubmitField('Update account')
     def validate_email(self, email):
         if email.data != current_user.email:
             if User.query.filter(User.email == email.data).first():

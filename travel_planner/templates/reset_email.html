@@ -1,0 +1,9 @@
+<p>
+    To reset your password
+    <a href="{{ url_for('users.reset_token', user=user, token=token, _external=True) }}">
+        click here
+    </a>.
+    <br>
+    If you didn't request password reset, Ignore this message.
+    
+</p>

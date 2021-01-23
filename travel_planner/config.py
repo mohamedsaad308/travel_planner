@@ -27,11 +27,15 @@ class Config:
     MAIL_USE_TLS = False
     MAIL_USERNAME = os.getenv('MAIL_USERNAME')
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
 
     # Flask-User settings
     USER_APP_NAME = "Flask-User Basic App"      # Shown in and email templates and page footers
     USER_ENABLE_EMAIL = True        # Enable email authentication
     USER_ENABLE_USERNAME = False    # Disable username authentication
     USER_EMAIL_SENDER_NAME = USER_APP_NAME
-    USER_EMAIL_SENDER_EMAIL = "noreply@example.com"
+    USER_EMAIL_SENDER_EMAIL = os.getenv('MAIL_DEFAULT_SENDER')
+    #uploaded files settings
+
+    # MAX_CONTENT_LENGTH = 2048 * 2048
+    UPLOAD_EXTENSIONS = ['.jpg', '.png', '.gif']
+

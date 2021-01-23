@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+    <div class="content-section">
+        {% if current_user.is_authenticated %}
+            <h1>Hi There, Start plan your next trip now! </h1>
+        {% else %}
+            <h1>Welcome to travel planner, to organize your next trip you need to <a class="nav-item nav-link" href="{{ url_for('users.login') }}">Login</a> 
+            or <a class="nav-item nav-link" href="{{ url_for('users.register') }}">Register</a> </h1>
+        {% endif %}
+    </div>
+{% endblock content %}

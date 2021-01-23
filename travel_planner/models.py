@@ -1,10 +1,13 @@
-import datetime
+import datetime, time
 import os
-from flask_user import  UserMixin
+from flask_login import UserMixin
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from travel_planner import login_manager, db
+import jwt
 
+from dotenv import load_dotenv
+load_dotenv()
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -23,6 +26,7 @@ class User(db.Model, UserMixin):
     # to search case insensitively when USER_IFIND_MODE is 'nocase_collation'.
     email = Column(String(255, collation='NOCASE'), nullable=False, unique=True)
     email_confirmed_at = Column(DateTime())
+    picture = Column(String(255), nullable=False, default='picture.png')
     password = Column(String(255), nullable=False, server_default='')
 
     # User information
@@ -32,6 +36,18 @@ class User(db.Model, UserMixin):
     # Define the relationship to Role via UserRoles
     roles = relationship('Role', secondary='user_roles')
     trips = relationship('Trip', backref='trip_user')
+
+    def set_reset_token(self, expires=500):
+        return jwt.encode({'reset_password': self.email, 'exp' : time.time() + expires}, key = os.getenv('SECRET_KEY'))
+    @staticmethod
+    def get_reset_token(token):
+        try:
+            email = jwt.decode(token, key = os.getenv('SECRET_KEY'))['reset_password']
+  
+        except Exception as e:
+            print(e)
+            return
+        return User.query.filter(User.email == email).first()
 
     # User CRUD methods 
     def insert(self):

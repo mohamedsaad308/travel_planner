@@ -1,0 +1,31 @@
+{% from '_render_field.html' import render_field %}
+{% extends 'layout.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+    {% block content %}
+        <div class="content-section">
+            <div class="media">
+                <img class="align-self-center rounded-circle account-img" src="{{ image_url }}" alt="picture.png">
+                <div class="media-body">
+                    <h2 class="mb-0">{{ current_user.first_name }} {{ current_user.last_name }}</h2>
+                    {{ current_user.email }}
+                </div>
+            </div>
+            <form method="post" action="" enctype="multipart/form-data">
+                {{ form.csrf_token }}
+                <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Update account</legend>
+                {{ render_field(form.email) }}
+                {{ render_field(form.first_name) }}
+                {{ render_field(form.last_name) }}
+                {{ render_field(form.picture) }}
+
+                <div class="form-group text-right">
+                    {{ form.submit(type="submit", class="col-lg-4 btn btn-primary") }}
+                </div>
+                </fieldset>
+            </form>
+            
+        </div>
+    {% endblock content %}

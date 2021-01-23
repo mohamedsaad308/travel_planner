@@ -1,0 +1,19 @@
+{% from '_render_field.html' import render_field %}}
+{% extends 'layout.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+    <div class="content-section">
+        <form method="post" action="">
+            {{ form.csrf_token }}
+            <fieldset>
+                {{ render_field(form.email) }}
+                <div class="form-group">
+                    
+                    {{ form.submit(type="submit", class="btn btn-primary") }}
+                </div>
+            </fieldset>
+        </form>
+    </div>
+{% endblock content %}
