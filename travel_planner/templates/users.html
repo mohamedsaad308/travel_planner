@@ -1,0 +1,96 @@
+{% extends 'layout.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+        <table class="table table-light">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in all_users %}
+                <tr id = "user-{{ user.id }}">
+                    <th scope="row">{{ user.id }}</th>
+                    <td id="email-{{ user.id }}">{{ user.email }}</td>
+                    <td id="first-name-{{ user.id }}">{{ user.first_name }}</td>
+                    <td id="last-name-{{ user.id }}">{{ user.last_name }}</td>
+                    <td>
+                        <!-- Call to action buttons -->
+                        <ul class="list-inline m-0">
+
+                            <li class="list-inline-item">
+                                <button class="btn btn-success btn-sm rounded-0 edit-user" onclick="getID(this.value)" value="{{ user.id }}" type="button" data-toggle="modal" data-target="#editUser" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>
+                            </li>
+                            <li class="list-inline-item">
+                                <button class="btn btn-danger btn-sm rounded-0 delete-user" value="{{ user.id }}" type="button" data-toggle="modal" data-target="#deleteUser" data-placement="top" title="Delete"><i class="fa fa-trash"></i></button>
+                            </li>
+                        </ul>
+
+                    </td>
+                </tr>
+                {% endfor %}
+                <!-- Edit User Modal -->
+                <div class="modal fade" id="editUser" tabindex="-1" role="dialog" aria-labelledby="#editUserTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="#editUserLongTitle">Edit user</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="post" action="">
+                          <div class="form-group">
+                            <label for="email">Email</label>
+                            <input id="email" class="form-control" type="text" name="email" value="">
+                          </div>
+                          <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input id="first_name" class="form-control" type="text" name="first_name" value="">
+                          </div>
+                          <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input id="last_name" class="form-control" type="text" name="last_name" value="">
+                          </div>
+                          <button type="submit" class="btn btn-primary" onclick="edit_user()">Save</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </form>
+                        
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Delete User Modal -->
+                <div class="modal fade" id="deleteUser" tabindex="-1" role="dialog" aria-labelledby="#deleteUserTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="#deleteUserLongTitle">Delete User!</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        ...
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </tbody>
+        </table>
+
+{% endblock content %}
+{% block script %}
+<script src="{{ url_for('static', filename='users.js') }}"></script>
+{% endblock script %}
