@@ -1,4 +1,7 @@
-from flask import Blueprint, redirect, flash, render_template, url_for, request, jsonify, make_response
+import sys
+import uuid
+from flask import Blueprint, redirect, flash, render_template, url_for, request, jsonify, make_response, abort
+from werkzeug import exceptions
 from travel_planner.models import User
 from travel_planner import bcrypt
 import datetime
@@ -6,8 +9,15 @@ from .forms import RegiserationForm, LoginForm, UpdateAccountForm, RequestResetF
 from flask_login import login_user, logout_user
 from flask_user import roles_required, current_user, login_required
 from .utils import save_picture, send_reset_request
-
+import re
+import jwt
+from functools import wraps
+from decouple import config
 users = Blueprint('users', __name__)
+
+
+def valid_email(email):
+    return bool(re.search(r"^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$", email))
 
 
 @users.route('/register', methods=['POST', 'GET'])
@@ -18,6 +28,7 @@ def register():
     if form.validate_on_submit():
         print('valid')
         user = User(email=form.email.data,
+                    public_id=str(uuid.uuid4()),
                     email_confirmed_at=datetime.datetime.utcnow(),
                     password=bcrypt.generate_password_hash(
                         form.password.data).decode('utf-8'),
@@ -74,8 +85,9 @@ def account():
 
     image_url = url_for(
         'static', filename='profile_pics/' + current_user.picture)
+    token = current_user.get_token()
 
-    return render_template('account.html', form=form, image_url=image_url, title='Account')
+    return render_template('account.html', form=form, image_url=image_url, title='Account', token=token)
 
 
 @users.route('/reset_password', methods=['POST', 'GET'])
@@ -111,31 +123,5 @@ def reset_token(token):
 
 
 @users.route('/users')
-@roles_required('Manager')
-def get_users():
-    all_users = User.query.filter(User.email != 'admin@planner.com').all()
-
-    return render_template('users.html', title='All Users', all_users=all_users)
-
-
-@users.route('/users/<int:user_id>', methods=["POST"])
-def edit_user(user_id):
-    user = User.query.filter(User.id == user_id).one_or_none
-    if user is None:
-        return jsonify({
-            'success': False,
-            'error': 'User does not exist'
-        })
-    body = request.get_json()
-    print(body)
-    email = body.get('email', None)
-    first_name = body.get('first_name', None)
-    last_name = body.get('last_name', None)
-    user.email = email
-    user.first_name = first_name
-    user.last_name = last_name
-    user.update()
-    return jsonify({
-        'success': True,
-        'updated user': user.id,
-    })
+def get_all_users():
+    return render_template('users.html')

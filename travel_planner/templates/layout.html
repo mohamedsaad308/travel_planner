@@ -36,7 +36,7 @@
               <a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Logout</a>
               <a class="nav-item nav-link" href="{{ url_for('users.account') }}">Account</a>
               {% if current_user.roles|length > 0  %}
-              <a class="nav-item nav-link" href="{{ url_for('users.get_users') }}">All Users</a>
+              <a class="nav-item nav-link" href="{{ url_for('users.get_all_users') }}">All Users</a>
               {% endif %}
 
             {% else %}

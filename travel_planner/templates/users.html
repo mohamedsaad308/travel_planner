@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block title %}
-    {{ title }}
+    All Users
 {% endblock title %}
 {% block content %}
         <table class="table table-light">
@@ -13,27 +13,25 @@
                 </tr>
             </thead>
             <tbody>
-                {% for user in all_users %}
-                <tr id = "user-{{ user.id }}">
-                    <th scope="row">{{ user.id }}</th>
-                    <td id="email-{{ user.id }}">{{ user.email }}</td>
-                    <td id="first-name-{{ user.id }}">{{ user.first_name }}</td>
-                    <td id="last-name-{{ user.id }}">{{ user.last_name }}</td>
+                <tr id = "user">
+                    <th scope="row">ID</th>
+                    <td id="email">Email</td>
+                    <td id="first-name">first-name</td>
+                    <td id="last-name">last-name</td>
                     <td>
                         <!-- Call to action buttons -->
                         <ul class="list-inline m-0">
 
                             <li class="list-inline-item">
-                                <button class="btn btn-success btn-sm rounded-0 edit-user" onclick="getID(this.value)" value="{{ user.id }}" type="button" data-toggle="modal" data-target="#editUser" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-success btn-sm rounded-0 edit-user" onclick="getID(this.value)" value="" type="button" data-toggle="modal" data-target="#editUser" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>
                             </li>
                             <li class="list-inline-item">
-                                <button class="btn btn-danger btn-sm rounded-0 delete-user" value="{{ user.id }}" type="button" data-toggle="modal" data-target="#deleteUser" data-placement="top" title="Delete"><i class="fa fa-trash"></i></button>
+                                <button class="btn btn-danger btn-sm rounded-0 delete-user" value="" type="button" data-toggle="modal" data-target="#deleteUser" data-placement="top" title="Delete"><i class="fa fa-trash"></i></button>
                             </li>
                         </ul>
 
                     </td>
                 </tr>
-                {% endfor %}
                 <!-- Edit User Modal -->
                 <div class="modal fade" id="editUser" tabindex="-1" role="dialog" aria-labelledby="#editUserTitle" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered" role="document">
@@ -48,17 +46,18 @@
                         <form method="post" action="">
                           <div class="form-group">
                             <label for="email">Email</label>
-                            <input id="email" class="form-control" type="text" name="email" value="">
+                            <input id="email" class="form-control" type="email"  placeholder="Enter valid email." value="">
+                            <small id="editEmailError" class="form-text text-danger"></small>
                           </div>
                           <div class="form-group">
                             <label for="first_name">First Name</label>
-                            <input id="first_name" class="form-control" type="text" name="first_name" value="">
+                            <input id="first_name" class="form-control" type="text"  value="">
                           </div>
                           <div class="form-group">
                             <label for="last_name">Last Name</label>
-                            <input id="last_name" class="form-control" type="text" name="last_name" value="">
+                            <input id="last_name" class="form-control" type="text"  value="">
                           </div>
-                          <button type="submit" class="btn btn-primary" onclick="edit_user()">Save</button>
+                          <button type="button" class="btn btn-primary" onclick="edit_user()">Save</button>
                           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         </form>
                         

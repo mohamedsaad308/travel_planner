@@ -1,21 +1,24 @@
 from travel_planner.models import User, db, Role, UserRoles
 import datetime
 from travel_planner import bcrypt, create_app
-
+import uuid
 app = create_app()
 # Create users with the three available roles
 
 #  Create 'user@planner.com' user with no roles
 with app.app_context():
-    # User.query.delete()
-    # Role.query.delete()
-    # UserRoles.query.delete()
+    User.query.delete()
+    Role.query.delete()
+    UserRoles.query.delete()
     # Create 'member@example.com' user with no roles
     if not User.query.filter(User.email == 'member@example.com').first():
         user = User(
+            public_id=str(uuid.uuid4()),
             email='member@example.com',
             email_confirmed_at=datetime.datetime.utcnow(),
             password=app.user_manager.hash_password('Password1'),
+            admin=False,
+            manager=False
         )
         db.session.add(user)
         db.session.commit()
@@ -23,9 +26,12 @@ with app.app_context():
     # Create 'admin@example.com' user with 'Admin' and 'Agent' roles
     if not User.query.filter(User.email == 'admin@example.com').first():
         user = User(
+            public_id=str(uuid.uuid4()),
             email='admin@example.com',
             email_confirmed_at=datetime.datetime.utcnow(),
             password=app.user_manager.hash_password('Password1'),
+            admin=True,
+            manager=True
         )
         user.roles.append(Role(name='Admin'))
         user.roles.append(Role(name='Manager'))
@@ -34,9 +40,12 @@ with app.app_context():
     # create manager@example.com
     if not User.query.filter(User.email == 'manager@example.com').first():
         user = User(
+            public_id=str(uuid.uuid4()),
             email='manager@example.com',
             email_confirmed_at=datetime.datetime.utcnow(),
             password=app.user_manager.hash_password('Password1'),
+            admin=False,
+            manager=True
         )
         manager = Role.query.filter(Role.name == 'Manager').first()
         db.session.add(user)
@@ -48,8 +57,8 @@ with app.app_context():
     # add_role = UserRoles(user_id=3, role_id=2)
     # db.session.add(add_role)
     # db.session.commit()
-    admin = User.query.filter(User.email == 'member@example.com').first()
-    print(len(admin.roles))
-    for role in admin.roles:
-        print(type(admin.roles))
-        print(role.name)
+    # admin = User.query.filter(User.email == 'member@example.com').first()
+    # print(len(admin.roles))
+    # for role in admin.roles:
+    #     print(type(admin.roles))
+    #     print(role.name)

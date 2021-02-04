@@ -83,3 +83,13 @@ a.article-title:hover {
 .account-heading {
   font-size: 2.5rem;
 }
+
+/* .hidden {
+  display: none;
+} */
+#api-key {
+  background-color: lightblue;
+  width: 500px;
+  height: 50px;
+  overflow: scroll;
+}

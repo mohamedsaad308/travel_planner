@@ -1,4 +1,4 @@
-import time
+from datetime import datetime, timedelta
 import os
 from flask_user import UserMixin
 from travel_planner import db, login_manager
@@ -19,6 +19,7 @@ def load_user(user_id):
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(50), unique=True)
     active = db.Column('is_active', db.Boolean(),
                        nullable=False, server_default='1')
 
@@ -29,6 +30,10 @@ class User(db.Model, UserMixin):
     email_confirmed_at = db.Column(db.DateTime())
     picture = db.Column(db.String(255), nullable=False, default='picture.png')
     password = db.Column(db.String(255), nullable=False, server_default='')
+    admin = db.Column('is_admin', db.Boolean(),
+                      nullable=False, server_default='0')
+    manager = db.Column('is_manager', db.Boolean(),
+                        nullable=False, server_default='0')
 
     # User information
     first_name = db.Column(db.String(100, collation='NOCASE'),
@@ -40,19 +45,19 @@ class User(db.Model, UserMixin):
     roles = db.relationship('Role', secondary='user_roles')
     trips = db.relationship('Trip', backref='trip_user')
 
-    def set_reset_token(self, expires=500):
-        return jwt.encode({'reset_password': self.email, 'exp': time.time() + expires}, key=os.getenv('SECRET_KEY'))
+    def get_token(self):
+        return jwt.encode({'public_id': self.public_id, 'exp': datetime.utcnow() + timedelta(hours=1)}, key=os.getenv('SECRET_KEY')).decode('utf-8')
 
     @staticmethod
-    def get_reset_token(token):
+    def check_token(token):
         try:
-            email = jwt.decode(token, key=os.getenv('SECRET_KEY'))[
-                'reset_password']
+            public_id = jwt.decode(token, key=os.getenv('SECRET_KEY'))[
+                'public_id']
 
         except Exception as e:
             print(e)
             return
-        return User.query.filter(User.email == email).first()
+        return User.query.filter(User.public_id == public_id).first()
 
     def __repr__(self):
         return f"{self.email}, {self.picture}"
@@ -68,6 +73,30 @@ class User(db.Model, UserMixin):
 
     def update(self):
         db.session.commit()
+# Return short form of user information as dict
+
+    def short(self):
+        return {
+            'public_id': self.public_id,
+            'id': self.id,
+            'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+        }
+# Return long form of user information as dict
+
+    def long(self):
+        return {
+            'public_id': self.public_id,
+            'id': self.id,
+            'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'password': self.password,
+            'picture': self.picture,
+            'is_admin': self.admin,
+            'is_manager': self.manager
+        }
 
 
 # Define the Role data-model
@@ -111,3 +140,13 @@ class Trip(db.Model):
 
     def update(self):
         db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'destination': self.destination,
+            'start_date': self.start_date,
+            'end_date': self.end_date,
+            'comment': self.comment,
+            'user': User.query.get(self.user_id).email
+        }

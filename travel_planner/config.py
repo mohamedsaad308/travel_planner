@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-
 class Config:
     """ Flask application config """
 
@@ -13,7 +12,7 @@ class Config:
     # Flask-SQLAlchemy settings
     SQLALCHEMY_TRACK_MODIFICATIONS = False    # Avoids SQLAlchemy warning
 
-    #Define database path
+    # Define database path
 
     database_filename = "database.db"
     project_dir = os.path.dirname(os.path.abspath(__file__))
@@ -29,13 +28,14 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
 
     # Flask-User settings
-    USER_APP_NAME = "Flask-User Basic App"      # Shown in and email templates and page footers
+    # Shown in and email templates and page footers
+    USER_APP_NAME = "Flask-User Basic App"
     USER_ENABLE_EMAIL = True        # Enable email authentication
     USER_ENABLE_USERNAME = False    # Disable username authentication
     USER_EMAIL_SENDER_NAME = USER_APP_NAME
     USER_EMAIL_SENDER_EMAIL = os.getenv('MAIL_DEFAULT_SENDER')
-    #uploaded files settings
+    # uploaded files settings
 
-    # MAX_CONTENT_LENGTH = 2048 * 2048
+    MAX_CONTENT_LENGTH = 2048 * 2048
     UPLOAD_EXTENSIONS = ['.jpg', '.png', '.gif']
-
+    WTF_CSRF_CHECK_DEFAULT = False

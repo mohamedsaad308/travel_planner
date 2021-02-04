@@ -10,6 +10,8 @@
                 <div class="media-body">
                     <h2 class="mb-0">{{ current_user.first_name }} {{ current_user.last_name }}</h2>
                     {{ current_user.email }}
+                    <p>Your API Key:</p>
+                    <p id = "api-key"> {{ token }}</p>
                 </div>
             </div>
             <form method="post" action="" enctype="multipart/form-data">
