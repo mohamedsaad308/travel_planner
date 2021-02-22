@@ -8,6 +8,7 @@ import re
 from travel_planner.users_api.auth import token_auth
 from travel_planner.users_api.auth import basic_auth
 from flask import Blueprint
+from flask_user import roles_required, current_user, login_required
 api = Blueprint('users_api', __name__)
 
 
@@ -25,10 +26,10 @@ def get_token():
 
 
 @api.route('/users')
-@token_auth.login_required
+@roles_required(['Manager', 'Admin'])
 def get_users():
-    if not token_auth.current_user().manager:
-        abort(403)
+    # if not token_auth.current_user().manager:
+    #     abort(403)
     # Return all users except for admin
     all_users = User.query.filter(User.email != 'admin@example.com').all()
     users_dict = [user.short() for user in all_users]
@@ -41,10 +42,10 @@ def get_users():
 
 
 @ api.route('/users-detail')
-@token_auth.login_required
+@roles_required(['Manager', 'Admin'])
 def get_users_detail():
-    if not token_auth.current_user().manager:
-        abort(403)
+    # if not token_auth.current_user().manager:
+    #     abort(403)
     # Return all users except for admin
     all_users = User.query.filter(User.email != 'admin@example.com').all()
     users_dict = [user.long() for user in all_users]
@@ -57,7 +58,7 @@ def get_users_detail():
 
 
 @ api.route('/users/<int:user_id>')
-@token_auth.login_required
+@ token_auth.login_required
 def get_one_user(user_id):
     user = User.query.filter(User.id == user_id).first()
     if user is None:
@@ -79,9 +80,9 @@ def get_one_user(user_id):
 
 
 @ api.route('/users/search', methods=['POST'])
-@token_auth.login_required
+@roles_required(['Manager', 'Admin'])
 def search_users():
-    if not token_auth.current_user().manager:
+    if not current_user.manager:
         abort(403)
     body = request.get_json()
     if body is None:
@@ -102,7 +103,7 @@ def search_users():
     }), 200)
 
 
-@api.route('/users', methods=['POST'])
+@ api.route('/users', methods=['POST'])
 def create_user():
     body = request.get_json()
     if body is None:
@@ -141,7 +142,7 @@ def create_user():
         new_user.insert()
         return jsonify({
             'success': True,
-            'new_user': new_user.long(),
+            'created': new_user.short(),
             'token': new_user.get_token()
         })
     except BaseException:
@@ -149,8 +150,8 @@ def create_user():
         abort(422)
 
 
-@ api.route('/users/<int:user_id>', methods=["PATCH"])
-@token_auth.login_required
+@api.route('/users/<int:user_id>', methods=["PATCH"])
+@login_required
 def edit_user(user_id):
     user = User.query.filter(User.id == user_id).first()
     if user is None:
@@ -161,7 +162,7 @@ def edit_user(user_id):
     # don't allow getting admin details
     if user.email == 'admin@example.com':
         abort(403)
-    if (token_auth.current_user().manager) or (token_auth.current_user().id == user.id):
+    if (current_user.manager) or (current_user.id == user.id):
         try:
             body = request.get_json()
             if body is None:
@@ -199,7 +200,7 @@ def edit_user(user_id):
             user.update()
             return jsonify({
                 'success': True,
-                'updated_user': user.long(),
+                'user': user.long(),
             })
         except BaseException:
             print(sys.exc_info())
@@ -209,9 +210,9 @@ def edit_user(user_id):
 
 
 @ api.route('/users/<int:user_id>', methods=['DELETE'])
-@token_auth.login_required
+@login_required
 def delete_user(user_id):
-    if not token_auth.current_user().manager:
+    if not current_user.manager:
         abort(403)
     user = User.query.filter(User.id == user_id).first()
     if user is None:
@@ -223,15 +224,15 @@ def delete_user(user_id):
         user.delete()
         return jsonify({
             'success': True,
-            'deleted_user': user_id,
+            'user_id': user_id,
         })
     except BaseException:
         print(sys.exc_info())
         abort(422)
 
 
-@api.route('/users/<int:user_id>/promote', methods=['PATCH'])
-@token_auth.login_required
+@ api.route('/users/<int:user_id>/promote', methods=['PATCH'])
+@ token_auth.login_required
 def promote_user(user_id):
     if not token_auth.current_user().admin:
         abort(403)

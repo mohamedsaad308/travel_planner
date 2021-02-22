@@ -26,6 +26,7 @@ def create_app():
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
+
     mail.init_app(app)
     csrf = CSRFProtect(app)
     migrate.init_app(app, db)
@@ -40,15 +41,17 @@ def create_app():
     # Setup Flask-User
     from .models import User, Role
     user_manager = UserManager(app, db, User)
+    login_manager.login_view = 'users.login'
+    # user_manager.login_view = 'users.login'
 
     return app
 
 # db.create_all(app=create_app())
 
 
-def db_drop_and_create_all():
-    db.drop_all(app=create_app())
-    db.create_all(app=create_app())
+# def db_drop_and_create_all():
+#     db.drop_all(app=create_app())
+#     db.create_all(app=create_app())
 
 
 # to rebuild database

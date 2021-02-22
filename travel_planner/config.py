@@ -39,3 +39,4 @@ class Config:
     MAX_CONTENT_LENGTH = 2048 * 2048
     UPLOAD_EXTENSIONS = ['.jpg', '.png', '.gif']
     WTF_CSRF_CHECK_DEFAULT = False
+    USER_LOGIN_URL = '/login'
