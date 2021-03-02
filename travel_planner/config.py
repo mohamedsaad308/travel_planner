@@ -40,3 +40,4 @@ class Config:
     UPLOAD_EXTENSIONS = ['.jpg', '.png', '.gif']
     WTF_CSRF_CHECK_DEFAULT = False
     USER_LOGIN_URL = '/login'
+    LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')

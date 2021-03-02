@@ -9,18 +9,15 @@
           <input id="my-input" class="form-check-input" type="text" name="" placeholder="Search by email" ref="userSearch">
           <button @click="searchUsers" type="submit" class="btn btn-primary ml-2 mb-2  mr-sm-2"><i class="fas fa-search"></i></button>
 
-          <label for="add-btn"> or add new user</label>
-          <button @click="showCreateModal = true" id="add-btn" type="submit" class="btn btn-primary ml-2  mb-2"><i class="fas fa-plus"></i></button>
-          <create-modal v-if="showCreateModal" @close="showCreateModal = false"  v-bind:user="userToCreat" @edit-user="createUser">
-            <!--
-          you can use custom content here to overwrite
-          default content
-        -->
+          <label for="add-btn">add user</label>
+          <button @click="createUserModal" id="add-btn" type="submit" class="btn btn-primary ml-2  mb-2"><i class="fas fa-plus"></i></button>
+          <create-modal v-if="showCreateModal" @close="showCreateModal = false"  v-bind:user="userToCreate" @create-user="createUser">
             <p slot="edit-error" class="text-danger">${ error }</p>
             <h3 slot="header">Create User</h3>
           </create-modal>
+
         </div>
-        <h2 v-if="search">There's ${users.length} users matched your search!</h2>
+        <h2 v-if="search">There's ${totalUsers} users matched your search!</h2>
         <table class="table table-light">
             <thead class="thead-light">
                 <tr>
@@ -32,7 +29,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class = "user" v-for="user in users" v-bind:key="user.public_id">
+                <tr class = "user" v-for="(user, index) in users" v-bind:key="user.public_id">
                     <th scope="row" v-bind:id="'id-' + user.id">${user.id}</th>
                     <td v-bind:id="'email-' + user.id">${user.email}</td>
                     <td v-bind:id="'first-name-' + user.id">${user.first_name}</td>
@@ -47,7 +44,7 @@
                             <li class="list-inline-item">
                                 <button @click="getToDeleteUser(user.id)" class="btn btn-danger btn-sm rounded-0 delete-user" value="" type="button" data-toggle="modal" data-target="#deleteUser" data-placement="top" title="Delete"><i class="fa fa-trash"></i></button>
                             </li>
-                            <edit-modal v-if="showEditModal" @close="showEditModal = false"  v-bind:user="userToEdit" @edit-user="updateUser">
+                            <edit-modal v-if="showEditModal" @close="showEditModal = false" :user="userToEdit" @edit-user="updateUser">
                               <!--
                             you can use custom content here to overwrite
                             default content
@@ -73,9 +70,24 @@
               </tr>
             </tbody>
         </table>
+        <!-- try pagination  -->
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li class="page-item">
+              <button type="button" class="page-link" v-if="page > 1" @click="getPrevious"> Previous </button>
+            </li>
+            <li class="page-item">
+              <button type="button" class="page-link" v-for="pageNumber in pageNumbers.slice(page-1, page+5)" @click="getCurrentPage(pageNumber)"> ${pageNumber} </button>
+            </li>
+            <li class="page-item">
+              <button type="button" @click="getNext" v-if="page < pageNumbers.length" class="page-link"> Next </button>
+            </li>
+          </ul>
+        </nav>
   </div>
 {% endblock content %}
 {% block script %}
+<script src="{{ url_for('static', filename='hamada.js') }}"></script>
 <script src="{{ url_for('static', filename='users.js') }}"></script>
 <script type="text/x-template" id="edit-modal-template">
   <transition name="modal">
@@ -94,17 +106,17 @@
               <form method="PATCH" action="">
                 <div class="form-group">
                   <slot name="edit-error"></slot>
-                  <label for="email">Email</label>
-                  <input id="email" class="form-control" type="email" v-model="user.email">
+                  <label >Email</label>
+                  <input  class="form-control" type="email"  :value="user.email" ref="userEmail">
                   <small id="editEmailError" class="form-text text-danger"></small>
                 </div>
                 <div class="form-group">
-                  <label for="first_name">First Name</label>
-                  <input id="first_name" class="form-control" type="text" v-model="user.first_name" >
+                  <label >First Name</label>
+                  <input  class="form-control" type="text"  :value="user.first_name" ref="userFirstName">
                 </div>
                 <div class="form-group">
-                  <label for="last_name">Last Name</label>
-                  <input id="last_name" class="form-control" type="text"  v-model="user.last_name">
+                  <label >Last Name</label>
+                  <input  class="form-control" type="text" :value="user.last_name" ref="userLastName">
                 </div>
 
               </form>
@@ -113,8 +125,8 @@
 
           <div class="modal-footer">
             <slot name="footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="$emit('close')">Close</button>
-              <button type="button" class="btn btn-primary" @click="$emit('edit-user')">Save</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="close">Close</button>
+              <button type="button" class="btn btn-primary" @click="editUser">Save</button>
             </slot>
           </div>
         </div>
@@ -173,21 +185,21 @@
               <form method="POST" action="">
                 <div class="form-group">
                   <slot name="edit-error"></slot>
-                  <label for="email">Email</label>
-                  <input id="email" class="form-control" type="email" v-model="user.email">
-                  <small id="editEmailError" class="form-text text-danger"></small>
+                  <label >Email</label>
+                  <input  class="form-control" type="email" v-model="user.email">
+                  <small id="createEmailError" class="form-text text-danger"></small>
                 </div>
                 <div class="form-group">
-                  <label for="first_name">First Name</label>
-                  <input id="first_name" class="form-control" type="text" v-model="user.first_name" >
+                  <label>First Name</label>
+                  <input class="form-control" type="text" v-model="user.first_name" >
                 </div>
                 <div class="form-group">
                   <label for="last_name">Last Name</label>
                   <input id="last_name" class="form-control" type="text"  v-model="user.last_name">
                 </div>
                 <div class="form-group">
-                  <label for="my-password">Password</label>
-                  <input id="my-password" class="form-control" type="password" name="">
+                  <label >Password</label>
+                  <input class="form-control" type="password" v-model="user.password">
                 </div>
 
               </form>

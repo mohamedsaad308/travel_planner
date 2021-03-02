@@ -16,6 +16,19 @@ def valid_email(email):
     return bool(re.search(r"^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$", email))
 
 
+# For pagination purpose
+USERS_PER_PAGE = 10
+
+
+def paginate_users(request, selection):
+    page = request.args.get('page', 1, type=int)
+    start = (page - 1) * USERS_PER_PAGE
+    end = start + USERS_PER_PAGE
+    users = [user.short() for user in selection]
+    current_users = users[start: end]
+    return current_users
+
+
 @api.route('/token', methods=['POST'])
 @basic_auth.login_required
 def get_token():
@@ -32,10 +45,10 @@ def get_users():
     #     abort(403)
     # Return all users except for admin
     all_users = User.query.filter(User.email != 'admin@example.com').all()
-    users_dict = [user.short() for user in all_users]
+    current_users = paginate_users(request, all_users)
     return make_response(jsonify({
         'success': True,
-        'users': users_dict,
+        'users': current_users,
         'count': len(all_users)
 
     }), 200)
@@ -94,23 +107,36 @@ def search_users():
     result = User.query.filter(
         User.email.ilike(f'%{search}%'), User.email != 'admin@example.com').order_by(
         User.id).all()
-    users_dict = [user.long() for user in result]
+    current_users = paginate_users(request, result)
     return make_response(jsonify({
         'success': True,
-        'users': users_dict,
+        'users': current_users,
         'count': len(result)
 
     }), 200)
 
 
 @ api.route('/users', methods=['POST'])
+@roles_required(['Manager', 'Admin'])
 def create_user():
     body = request.get_json()
     if body is None:
         return make_response(jsonify({
             'success': False,
-            'error': 'Provide new user details'
+            'error': 'Provide new user details or search information'
         }), 400)
+    if 'search' in body:
+        search = body.get('search', None)
+        result = User.query.filter(
+            User.email.ilike(f'%{search}%'), User.email != 'admin@example.com').order_by(
+            User.id).all()
+        current_users = paginate_users(request, result)
+        return make_response(jsonify({
+            'success': True,
+            'users': current_users,
+            'count': len(result)
+
+        }), 200)
     email = body.get('email', None)
     password = body.get('password', None)
     if (not email) or (not password):
@@ -140,8 +166,12 @@ def create_user():
             last_name=body.get('last_name', None)
         )
         new_user.insert()
+        all_users = User.query.filter(User.email != 'admin@example.com').all()
+        current_users = paginate_users(request, all_users)
         return jsonify({
             'success': True,
+            'users': current_users,
+            'count': len(all_users),
             'created': new_user.short(),
             'token': new_user.get_token()
         })
@@ -200,7 +230,7 @@ def edit_user(user_id):
             user.update()
             return jsonify({
                 'success': True,
-                'user': user.long(),
+                'updated': user.short(),
             })
         except BaseException:
             print(sys.exc_info())
@@ -222,9 +252,13 @@ def delete_user(user_id):
         }), 404)
     try:
         user.delete()
+        all_users = User.query.filter(User.email != 'admin@example.com').all()
+        current_users = paginate_users(request, all_users)
         return jsonify({
             'success': True,
             'user_id': user_id,
+            'users': current_users,
+            'count': len(all_users)
         })
     except BaseException:
         print(sys.exc_info())
