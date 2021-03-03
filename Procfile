@@ -1,1 +1,1 @@
-web: flask db upgrade; gunicorn travel_planner:app
+web: flask db upgrade; gunicorn app:travel_planner

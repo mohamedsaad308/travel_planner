@@ -13,12 +13,15 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False    # Avoids SQLAlchemy warning
 
     # Define database path
-
-    database_filename = "database.db"
-    project_dir = os.path.dirname(os.path.abspath(__file__))
-    database_path = "sqlite:///{}".format(
-        os.path.join(project_dir, database_filename))
-    SQLALCHEMY_DATABASE_URI = database_path
+    ENV = "pro"
+    if ENV == "dev":
+        database_filename = "database.db"
+        project_dir = os.path.dirname(os.path.abspath(__file__))
+        database_path = "sqlite:///{}".format(
+            os.path.join(project_dir, database_filename))
+        SQLALCHEMY_DATABASE_URI = database_path
+    else:
+        SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     # Flask-Mail SMTP server settings
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
