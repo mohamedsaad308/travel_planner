@@ -25,7 +25,7 @@ class User(db.Model, UserMixin):
 
     # User authentication information. The collation='NOCASE' is required
     # to search case insensitively when USER_IFIND_MODE is 'nocase_collation'.
-    email = db.Column(db.String(255, collation='NOCASE'),
+    email = db.Column(db.String(255),
                       nullable=False, unique=True)
     email_confirmed_at = db.Column(db.DateTime())
     picture = db.Column(db.String(255), nullable=False, default='picture.png')
@@ -36,9 +36,9 @@ class User(db.Model, UserMixin):
                         nullable=False, server_default='0')
 
     # User information
-    first_name = db.Column(db.String(100, collation='NOCASE'),
+    first_name = db.Column(db.String(100),
                            nullable=False, server_default='')
-    last_name = db.Column(db.String(100, collation='NOCASE'),
+    last_name = db.Column(db.String(100),
                           nullable=False, server_default='')
 
     # Define the relationship to Role via UserRoles

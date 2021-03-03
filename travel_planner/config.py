@@ -13,7 +13,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False    # Avoids SQLAlchemy warning
 
     # Define database path
-    ENV = "pro"
+    ENV = "dev"
     if ENV == "dev":
         database_filename = "database.db"
         project_dir = os.path.dirname(os.path.abspath(__file__))
