@@ -10,8 +10,6 @@
                 <div class="media-body">
                     <h2 class="mb-0">{{ current_user.first_name }} {{ current_user.last_name }}</h2>
                     {{ current_user.email }}
-                    <p>Your API Key:</p>
-                    <p id = "api-key"> {{ token }}</p>
                 </div>
             </div>
             <form method="post" action="" enctype="multipart/form-data">
@@ -24,7 +22,7 @@
                 {{ render_field(form.picture) }}
 
                 <div class="form-group text-right">
-                    {{ form.submit(type="submit", class="col-lg-4 btn btn-primary") }}
+                    {{ form.submit(type="submit", class="col-lg-2 btn btn-primary") }}
                 </div>
                 </fieldset>
             </form>

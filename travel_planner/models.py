@@ -142,11 +142,16 @@ class Trip(db.Model):
         db.session.commit()
 
     def format(self):
+        diff = self.start_date - datetime.utcnow()
+        count = diff.days
+        if count < 0:
+            count = "Passed!"
         return {
             'id': self.id,
             'destination': self.destination,
-            'start_date': self.start_date,
-            'end_date': self.end_date,
+            'start_date': self.start_date.strftime('%a, %d %b %Y'),
+            'end_date': self.end_date.strftime('%a, %d %b %Y'),
+            'counter': count,
             'comment': self.comment,
             'user': User.query.get(self.user_id).email
         }

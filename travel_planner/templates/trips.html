@@ -1,0 +1,141 @@
+{% extends 'layout.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+    <div id="trips">
+        <table class="table table-light table-hover">
+            <form>
+                <div class="row">
+                   <div class="col-md-8 form-inline">
+                    <label class="sr-only" for="search-destination">Name</label>
+                    <input type="text" class="form-control mb-2 mr-sm-2" id="search-destination" placeholder="Search destination">
+                  
+                  
+                    <div class="form-check mb-2 mr-sm-2">
+                      <input class="form-check-input" type="checkbox" id="inlineFormCheck">
+                      <label class="form-check-label" for="inlineFormCheck">
+                        Onley next month
+                      </label>
+                    </div>
+                  
+                    <button type="submit" class="btn btn-primary mb-2"><i class="fas fa-search"></i></button>
+                   </div>
+                  <div class = "col-md-4 ">
+                    <button @click="createTripModal" type="button" class="btn btn-primary mb-2 float-right"><i class="fas fa-plus"></i></button>
+                  </div>
+                </div>
+              </form>
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Destination</th>
+                    <th scope="col">Start</th>
+                    <th scope="col">End</th>
+                    <th scope="col">Days Left</th>
+                    <th scope="col">Comment</th>
+                    <th scope="col">User</th>
+                    <th scope="col">Edit/Delete</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr class = "trip" v-for="(trip, index) in trips" v-bind:key="trip.id">
+                    <th scope="row" class="trip-id">${ trip.id }</th>
+                    <td class="trip-destination">${ trip.destination }</td>
+                    <td class="trip-start-date">${ trip.start_date }</td>
+                    <td class="trip-end-date">${ trip.end_date }</td>
+                    <td class="trip-counter">${ trip.counter }</td>
+                    <td class="trip-comment">${ trip.comment }</td>
+                    <td class="trip-user">${ trip.user }</td>
+                    <td>
+                        <!-- Call to action buttons -->
+                        <ul class="list-inline m-0">
+
+                            <li class="list-inline-item">
+                                <button @click="" class="btn btn-success btn-sm rounded-0"  type="button" data-toggle="modal" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>
+                            </li>
+                            <li class="list-inline-item">
+                                <button @click="" class="btn btn-danger btn-sm rounded-0 d" type="button" data-toggle="modal"  data-placement="top" title="Delete"><i class="fa fa-trash"></i></button>
+                            </li>
+
+
+                        </ul>
+
+                    </td>
+                </tr>
+                <tr>
+              </tr>
+            </tbody>
+        </table>
+        <create-trip
+        v-if = "showCreateTrip"
+        :trip={}
+        :error="error"
+        @close="showCreateTrip = false"
+        @add-trip = "addTrip"
+        >
+        <h3 slot="header">Create Trip</h3>
+        <p v-if="error" slot="trip-error" class="text-danger">${ error }</p>
+        </create-trip>
+    </div>
+{% endblock content %}
+{% block script %}
+    <script src="{{ url_for('static', filename='trip_components.js') }}"></script>
+    <script src="{{ url_for('static', filename='trips.js') }}"></script>
+    <script type="text/x-template" id="create-trip">
+        <transition name="modal">
+          <div class="modal-mask">
+            <div class="modal-wrapper">
+              <div class="modal-container">
+      
+                <div class="modal-header">
+                  <slot name="header">
+                    Edit Trip
+                  </slot>
+                </div>
+      
+                <div class="modal-body">
+                  <slot name="trip-error"></slot>
+                  <slot name="body">
+                    <form method="POST" action="">
+                        <div class="form-group">
+                            <label for="destination-select">Destination:</label>
+                            <select id="destination-select" class="form-control" name="" v-model= "destination">
+                              <option value="" selected disabled hidden>Choose destination</option>
+                              <option
+                                v-for = "country in countries"
+                                :key = country.value
+                                :value = country.value
+                                >${ country.text }
+                              </option>
+                            </select>
+                        </div>
+                      <div class="form-group">
+                        <label for="start-date">Start date:</label>
+                        <input class="form-control" type="date" name="" id="start-date" v-model="startDate">
+                      </div>
+                      <div class="form-group">
+                        <label for="end-date">Start date:</label>
+                        <input class="form-control" type="date" name="" id="end-date" v-model="endDate">
+                      </div>
+                      <div class="form-group">
+                        <label for="optional-comment">Comment:</label>
+                        <textarea id="optional-comment" class="form-control" name="" rows="3" v-model="comment"></textarea>
+                      </div>
+                    </form>
+                  </slot>
+                </div>
+      
+                <div class="modal-footer">
+                  <slot name="footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="close">Close</button>
+                    <button type="button" class="btn btn-primary" @click="addTrip">Save</button>
+                  </slot>
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </script>
+{% endblock script %}

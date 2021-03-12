@@ -6,15 +6,15 @@ trips for certain period of time.
 
 ## Getting Started
 
-- Base URL : The app is hosted on [Here](https://flask-travel-planner.herokuapp.com/) on Heroku.
+- Base URL : The app is hosted [Here](https://flask-travel-planner.herokuapp.com/) on Heroku.
 
 - Authentication : This version of the app require authentication and you can register your account from [Here](https://flask-travel-planner.herokuapp.com/register)
 
 - Authorization : The app has three main roles
 
-  1. Regular user: Can CRUD only his own account and trips.
-  2. Manager : Can CRUD all the users and only his own trips.
-  3. Admin: Can CRUD on all users and trips.
+  - Regular user: can CRUD only his own account and trips.
+  - Manager : can CRUD all the users and only his own trips.
+  - Admin: can CRUD on all users and trips.
 
 ### Installing Dependencies To use the app locally
 

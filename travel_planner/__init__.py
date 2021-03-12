@@ -32,9 +32,12 @@ def create_app():
     migrate.init_app(app, db)
     from travel_planner.main.routes import main
     from travel_planner.users.routes import users
+    from travel_planner.trips.routes import trips
     from travel_planner.users_api.users import api as api_bp
     from travel_planner.trips_api.routes import api as trips_api
+
     app.register_blueprint(main)
+    app.register_blueprint(trips)
     app.register_blueprint(users)
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(trips_api, url_prefix='/api')

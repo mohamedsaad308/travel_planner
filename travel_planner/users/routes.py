@@ -123,5 +123,6 @@ def reset_token(token):
 
 
 @users.route('/users')
+@roles_required(['Manager', 'Admin'])
 def get_all_users():
     return render_template('users.html')
