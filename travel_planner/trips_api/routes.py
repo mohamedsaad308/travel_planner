@@ -72,27 +72,35 @@ def add_trip():
         order_type = body.get('order_type', None)
         from_date = body.get('from_date', None)
         to_date = body.get('to_date', None)
-        if from_date and to_date:
-            from_to = from_date <= Trip.start_date <= to_date
-        elif from_date:
-            from_to = Trip.start_date >= from_date
-        elif to_date:
-            from_to = Trip.start_date <= to_date
+        # if from_date and to_date:
+        #     from_to = from_date <= Trip.start_date and Trip.start_date <= to_date
+        # elif from_date:
+        #     from_to = Trip.start_date >= from_date
+        # elif to_date:
+        #     from_to = Trip.start_date <= to_date
+        # else:
+        #     from_to = True
+        if from_date:
+            from_date_filter = Trip.start_date >= from_date
         else:
-            from_to = True
+            from_date_filter = True
+        if to_date:
+            to_date_filter = Trip.start_date <= to_date
+        else:
+            to_date_filter = True
         direction = desc if order_type == 'desc' else asc
         if current_user.admin:
             count = Trip.query.filter(
-                Trip.destination.ilike(f'%{search}%'), from_to).count()
+                Trip.destination.ilike(f'%{search}%'), from_date_filter, to_date_filter).count()
             current_trips = Trip.query.filter(
-                Trip.destination.ilike(f'%{search}%'), from_to).order_by(direction
-                                                                         (text(order_by))).offset(offset).limit(TRIPS_PER_PAGE)
+                Trip.destination.ilike(f'%{search}%'), from_date_filter, to_date_filter).order_by(direction
+                                                                                                  (text(order_by))).offset(offset).limit(TRIPS_PER_PAGE)
         else:
             count = Trip.query.filter(
-                Trip.destination.ilike(f'%{search}%'), Trip.user_id == current_user.id, from_to).count()
+                Trip.destination.ilike(f'%{search}%'), Trip.user_id == current_user.id, from_date_filter, to_date_filter).count()
             current_trips = Trip.query.filter(
-                Trip.destination.ilike(f'%{search}%'), Trip.user_id == current_user.id, from_to).order_by(direction
-                                                                                                          (text(order_by))).offset(offset).limit(TRIPS_PER_PAGE)
+                Trip.destination.ilike(f'%{search}%'), Trip.user_id == current_user.id, from_date_filter, to_date_filter).order_by(direction
+                                                                                                                                   (text(order_by))).offset(offset).limit(TRIPS_PER_PAGE)
         return make_response(jsonify({
             'success': True,
             'trips': [trip.format() for trip in current_trips],
