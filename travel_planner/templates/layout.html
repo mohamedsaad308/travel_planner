@@ -26,24 +26,24 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarToggle">
           <div class="navbar-nav mr-auto">
-            <a class="nav-item nav-link" href="{{ url_for('main.home') }}">Home</a>
+            <a class="nav-item nav-link {{ 'active' if active_page == 'home' else '' }}" href="{{ url_for('main.home') }}">Home</a>
             {% if current_user.manager %}
-            <a class="nav-item nav-link" href="{{ url_for('users.get_all_users') }}">Users</a>
+            <a class="nav-item nav-link {{ 'active' if active_page == 'users' else '' }}" href="{{ url_for('users.get_all_users') }}">Users</a>
             {% endif %}
             {% if current_user.admin %}
-            <a class="nav-item nav-link" href="{{ url_for('trips.all_trips') }}">Trips</a>
+            <a class="nav-item nav-link {{ 'active' if active_page == 'trips' else '' }}" href="{{ url_for('trips.all_trips') }}">Trips</a>
             {% endif %}
           </div>
           <!-- Navbar Right Side -->
           <div class="navbar-nav">
             {% if current_user.is_authenticated %}
-              <a class="nav-item nav-link" href="{{ url_for('trips.user_trips') }}">My Trips</a>
-              <a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Logout</a>
-              <a class="nav-item nav-link" href="{{ url_for('users.account') }}">Account</a>
+              <a class="nav-item nav-link {{ 'active' if active_page == 'mytrips' else '' }}" href="{{ url_for('trips.user_trips') }}">My Trips</a>
+              <a class="nav-item nav-link {{ 'active' if active_page == 'logout' else '' }}" href="{{ url_for('users.logout') }}">Logout</a>
+              <a class="nav-item nav-link {{ 'active' if active_page == 'account' else '' }}" href="{{ url_for('users.account') }}">Account</a>
               
             {% else %}
-              <a class="nav-item nav-link" href="{{ url_for('users.login') }}">Login</a>
-              <a class="nav-item nav-link" href="{{ url_for('users.register') }}">Register</a>
+              <a class="nav-item nav-link {{ 'active' if active_page == 'login' else '' }}" href="{{ url_for('users.login') }}">Login</a>
+              <a class="nav-item nav-link {{ 'active' if active_page == 'register' else '' }}" href="{{ url_for('users.register') }}">Register</a>
             {% endif %}
           </div>
         </div>
