@@ -109,7 +109,7 @@ def reset_token(token):
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     form = PasswordResetForm()
-    user = User.get_reset_token(token)
+    user = User.check_token(token)
     if user is None:
         flash('This is an invalid or  expired token', 'warning')
         return redirect('user.reset_password')

@@ -13,12 +13,6 @@ const createTripComponent = {
   props: ["trip"],
   methods: {
     addTrip() {
-      // console.log(
-      //   this.$refs.destination.value,
-      //   this.$refs.startDate.value,
-      //   this.$refs.endDate.value,
-      //   this.$comment.value
-      // );
       console.log(this.destination, this.startDate, this.endDate, this.comment);
       this.$emit(
         "add-trip",
@@ -26,10 +20,6 @@ const createTripComponent = {
         this.startDate,
         this.endDate,
         this.comment
-        // this.$refs.destination.value,
-        // this.$refs.startDate.value,
-        // this.$refs.endDate.value,
-        // this.$comment.value
       );
     },
     close() {
@@ -37,6 +27,58 @@ const createTripComponent = {
     },
   },
   template: "#create-trip",
+};
+
+// To edit the trip
+
+const editTripComponent = {
+  data() {
+    return {
+      countries: countries,
+      destination: null,
+      startDate: null,
+      endDate: null,
+      comment: null,
+    };
+  },
+  delimiters: ["${", "}"],
+  emits: ["edit-trip", "close"],
+  props: ["trip"],
+  methods: {
+    editTrip() {
+      this.destination = this.$refs.destination.value;
+      this.startDate = this.$refs.startDate.value;
+      this.endDate = this.$refs.endDate.value;
+      this.comment = this.$refs.comment.value;
+      console.log(this.destination, this.startDate, this.endDate, this.comment);
+      this.$emit(
+        "edit-trip",
+        this.destination,
+        this.startDate,
+        this.endDate,
+        this.comment
+      );
+    },
+    close() {
+      this.$emit("close");
+    },
+  },
+  template: "#edit-trip",
+};
+// Delete trip modal
+const deleteTripComponent = {
+  delimiters: ["${", "}"],
+  emits: ["delete-trip", "close"],
+  props: ["trip"],
+  methods: {
+    deleteTrip() {
+      this.$emit("delete-trip");
+    },
+    close() {
+      this.$emit("close");
+    },
+  },
+  template: "#delete-trip",
 };
 
 const countries = [

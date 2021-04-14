@@ -44,12 +44,16 @@ def get_users():
     # if not token_auth.current_user().manager:
     #     abort(403)
     # Return all users except for admin
-    all_users = User.query.filter(User.email != 'admin@example.com').all()
-    current_users = paginate_users(request, all_users)
+    page = request.args.get('page', 1, type=int)
+    offset = (page - 1) * USERS_PER_PAGE
+    current_users = User.query.filter(
+        User.email != 'admin@example.com').offset(offset).limit(USERS_PER_PAGE)
+    all_users_count = User.query.filter(
+        User.email != 'admin@example.com').count()
     return make_response(jsonify({
         'success': True,
-        'users': current_users,
-        'count': len(all_users)
+        'users': [user.short() for user in current_users],
+        'count': all_users_count
 
     }), 200)
 
@@ -60,12 +64,16 @@ def get_users_detail():
     # if not token_auth.current_user().manager:
     #     abort(403)
     # Return all users except for admin
-    all_users = User.query.filter(User.email != 'admin@example.com').all()
-    users_dict = [user.long() for user in all_users]
+    page = request.args.get('page', 1, type=int)
+    offset = (page - 1) * USERS_PER_PAGE
+    current_users = User.query.filter(
+        User.email != 'admin@example.com').offset(offset).limit(USERS_PER_PAGE)
+    all_users_count = User.query.filter(
+        User.email != 'admin@example.com').count()
     return make_response(jsonify({
         'success': True,
-        'users': users_dict,
-        'count': len(all_users)
+        'users': [user.long() for user in current_users],
+        'count': all_users_count
 
     }), 200)
 
@@ -90,30 +98,6 @@ def get_one_user(user_id):
         }), 200)
     else:
         abort(403)
-
-
-@ api.route('/users/search', methods=['POST'])
-@roles_required(['Manager', 'Admin'])
-def search_users():
-    if not current_user.manager:
-        abort(403)
-    body = request.get_json()
-    if body is None:
-        return make_response(jsonify({
-            'success': False,
-            'error': 'Provide valid search word'
-        }), 400)
-    search = body.get('search', None)
-    result = User.query.filter(
-        User.email.ilike(f'%{search}%'), User.email != 'admin@example.com').order_by(
-        User.id).all()
-    current_users = paginate_users(request, result)
-    return make_response(jsonify({
-        'success': True,
-        'users': current_users,
-        'count': len(result)
-
-    }), 200)
 
 
 @ api.route('/users', methods=['POST'])

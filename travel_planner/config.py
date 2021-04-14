@@ -19,6 +19,7 @@ class Config:
         project_dir = os.path.dirname(os.path.abspath(__file__))
         database_path = "sqlite:///{}".format(
             os.path.join(project_dir, database_filename))
+        # print('database path', database_path)
         SQLALCHEMY_DATABASE_URI = database_path
     else:
         SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')

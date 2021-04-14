@@ -49,7 +49,7 @@ const trips = new Vue({
     getTrips(pageNumber = 1) {
       this.page = pageNumber;
       this.searchFlag = false;
-      fetch(`/api/trips?page=${pageNumber}`, {
+      fetch(`/api/mytrips?page=${pageNumber}`, {
         method: "GET",
         credentials: "include",
         cache: "no-cache",
@@ -145,11 +145,11 @@ const trips = new Vue({
         .then((json) => {
           // console.log(json);
           if (json.success) {
-            // console.log("here deleted successful");
             this.trips = this.trips.filter(
               (trip) => trip.id != json.deleted_trip_id
             );
-            // console.log(this.trips);
+            // console.log("users deleted");
+
             this.tripsCount--;
             this.showDeleteModal = false;
             this.error = "";

@@ -22,7 +22,7 @@ def save_picture(form_picture, user_email):
 
 
 def send_reset_request(user):
-    token = user.set_reset_token()
+    token = user.get_token()
     msg = Message()
     msg.recipients = [user.email]
     msg.subject = 'Password Reset Request'

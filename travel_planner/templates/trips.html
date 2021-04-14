@@ -8,18 +8,17 @@
             <form>
                 <div class="row">
                    <div class="col-md-8 form-inline">
-                    <label class="sr-only" for="search-destination">Name</label>
-                    <input type="text" class="form-control mb-2 mr-sm-2" id="search-destination" placeholder="Search destination">
-                  
-                  
-                    <div class="form-check mb-2 mr-sm-2">
-                      <input class="form-check-input" type="checkbox" id="inlineFormCheck">
-                      <label class="form-check-label" for="inlineFormCheck">
-                        Onley next month
-                      </label>
+                    <input type="text" class="form-control mb-2 mr-sm-2" id="search-destination" v-model="filterTrips.search" placeholder="Search destination">
+                    <div class="form-group">
+                      <label for="from-date mr-2">From :</label>
+                      <input id="from-date" class="form-control" type="date" v-model="filterTrips.from_date">
+                    </div>
+                    <div class="form-group">
+                      <label for="end-date mr-2 ml-2">To :</label>
+                      <input id="end-date" class="form-control" type="date" v-model="filterTrips.to_date">
                     </div>
                   
-                    <button type="submit" class="btn btn-primary mb-2"><i class="fas fa-search"></i></button>
+                    <button type="button" @click="searchTrips" class="btn btn-primary mb-2"><i class="fas fa-search"></i></button>
                    </div>
                   <div class = "col-md-4 ">
                     <button @click="createTripModal" type="button" class="btn btn-primary mb-2 float-right"><i class="fas fa-plus"></i></button>
@@ -28,13 +27,13 @@
               </form>
             <thead class="thead-light">
                 <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Destination</th>
-                    <th scope="col">Start</th>
-                    <th scope="col">End</th>
-                    <th scope="col">Days Left</th>
+                    <th scope="col"><i class="fas fa-sort"> <a @click="orderBy('id', $event)" href="">#</a> </i></th>
+                    <th scope="col"><i class="fas fa-sort"><a @click="orderBy('destination', $event)" href="">Destination</a></i></th>
+                    <th scope="col"><i class="fas fa-sort"><a @click="orderBy('start_date', $event)" href="">Start</a></i></th>
+                    <th scope="col"><i class="fas fa-sort"><a @click="orderBy('end_date', $event)" href="">End</a></i></th>
+                    <th scope="col">Days&nbsp;left</th>
                     <th scope="col">Comment</th>
-                    <th scope="col">User</th>
+                    <th scope="col"><i class="fas fa-sort"><a @click="orderBy('user_id', $event)" href="">User</a></i></th>
                     <th scope="col">Edit/Delete</th>
                     
                 </tr>
@@ -53,10 +52,10 @@
                         <ul class="list-inline m-0">
 
                             <li class="list-inline-item">
-                                <button @click="" class="btn btn-success btn-sm rounded-0"  type="button" data-toggle="modal" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button @click="showEditTrip(trip.id)" class="btn btn-success btn-sm rounded-0"  type="button" data-toggle="modal" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>
                             </li>
                             <li class="list-inline-item">
-                                <button @click="" class="btn btn-danger btn-sm rounded-0 d" type="button" data-toggle="modal"  data-placement="top" title="Delete"><i class="fa fa-trash"></i></button>
+                                <button @click="showDeleteTrip(trip.id)" class="btn btn-danger btn-sm rounded-0 d" type="button" data-toggle="modal"  data-placement="top" title="Delete"><i class="fa fa-trash"></i></button>
                             </li>
 
 
@@ -68,74 +67,200 @@
               </tr>
             </tbody>
         </table>
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li class="page-item" v-if="page > 1">
+              <button type="button" class="page-link"  @click="getPrevious"> Previous </button>
+            </li>
+            <li class="page-item">
+              <button type="button" class="page-link" v-for="pageNumber in pageNumbers.slice(page-1, page+5)" @click="getCurrentPage(pageNumber)"> ${pageNumber} </button>
+            </li>
+            <li class="page-item" v-if="page < pageNumbers.length">
+              <button type="button" @click="getNext" class="page-link"> Next </button>
+            </li>
+          </ul>
+        </nav>
         <create-trip
-        v-if = "showCreateTrip"
+        v-if = "showCreateModal"
         :trip={}
         :error="error"
-        @close="showCreateTrip = false"
+        @close="showCreateModal = false"
         @add-trip = "addTrip"
         >
         <h3 slot="header">Create Trip</h3>
         <p v-if="error" slot="trip-error" class="text-danger">${ error }</p>
         </create-trip>
+        <!-- modal for editing trip  -->
+        <edit-trip
+        v-if = "showEditModal"
+        :trip="tripCopy"
+        :error="error"
+        @close="showEditModal = false"
+        @edit-trip = "editTrip"
+        >
+        <h3 slot="header">Edit Trip</h3>
+        <p v-if="error" slot="trip-error" class="text-danger">${ error }</p>
+        </edit-trip>
+        <!-- Delete trip modal  -->
+        <delete-trip
+        v-if = "showDeleteModal"
+        :trip="tripCopy"
+        :error="error"
+        @close="showDeleteModal = false"
+        @delete-trip = "deleteTrip"
+        >
+        <h3 slot="header">Delete Trip</h3>
+        <p v-if="error" slot="trip-error" class="text-danger">${ error }</p>
+        </delete-trip>
     </div>
 {% endblock content %}
 {% block script %}
     <script src="{{ url_for('static', filename='trip_components.js') }}"></script>
     <script src="{{ url_for('static', filename='trips.js') }}"></script>
     <script type="text/x-template" id="create-trip">
-        <transition name="modal">
-          <div class="modal-mask">
-            <div class="modal-wrapper">
-              <div class="modal-container">
-      
-                <div class="modal-header">
-                  <slot name="header">
-                    Edit Trip
-                  </slot>
-                </div>
-      
-                <div class="modal-body">
-                  <slot name="trip-error"></slot>
-                  <slot name="body">
-                    <form method="POST" action="">
-                        <div class="form-group">
-                            <label for="destination-select">Destination:</label>
-                            <select id="destination-select" class="form-control" name="" v-model= "destination">
-                              <option value="" selected disabled hidden>Choose destination</option>
-                              <option
-                                v-for = "country in countries"
-                                :key = country.value
-                                :value = country.value
-                                >${ country.text }
-                              </option>
-                            </select>
-                        </div>
+      <transition name="modal">
+        <div class="modal-mask">
+          <div class="modal-wrapper">
+            <div class="modal-container">
+    
+              <div class="modal-header">
+                <slot name="header">
+                  Edit Trip
+                </slot>
+              </div>
+    
+              <div class="modal-body">
+                <slot name="trip-error"></slot>
+                <slot name="body">
+                  <form method="PUT" action="">
                       <div class="form-group">
-                        <label for="start-date">Start date:</label>
-                        <input class="form-control" type="date" name="" id="start-date" v-model="startDate">
+                          <label for="destination-select">Destination:</label>
+                          <select id="destination-select" class="form-control" name="" v-model= "destination">
+                            <option value="" selected disabled hidden>Choose destination</option>
+                            <option
+                              v-for = "country in countries"
+                              :key = country.value
+                              :value = country.text
+                              >${ country.text }
+                            </option>
+                          </select>
                       </div>
-                      <div class="form-group">
-                        <label for="end-date">Start date:</label>
-                        <input class="form-control" type="date" name="" id="end-date" v-model="endDate">
-                      </div>
-                      <div class="form-group">
-                        <label for="optional-comment">Comment:</label>
-                        <textarea id="optional-comment" class="form-control" name="" rows="3" v-model="comment"></textarea>
-                      </div>
-                    </form>
-                  </slot>
-                </div>
-      
-                <div class="modal-footer">
-                  <slot name="footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="close">Close</button>
-                    <button type="button" class="btn btn-primary" @click="addTrip">Save</button>
-                  </slot>
-                </div>
+                    <div class="form-group">
+                      <label for="start-date">Start date:</label>
+                      <input class="form-control" type="date" name="" id="start-date" v-model="startDate">
+                    </div>
+                    <div class="form-group">
+                      <label for="end-date">End date:</label>
+                      <input class="form-control" type="date" name="" id="end-date" v-model="endDate">
+                    </div>
+                    <div class="form-group">
+                      <label for="optional-comment">Comment:</label>
+                      <textarea id="optional-comment" class="form-control" name="" rows="3" v-model="comment"></textarea>
+                    </div>
+                  </form>
+                </slot>
+              </div>
+    
+              <div class="modal-footer">
+                <slot name="footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="close">Close</button>
+                  <button type="button" class="btn btn-primary" @click="addTrip">Add</button>
+                </slot>
               </div>
             </div>
           </div>
-        </transition>
-      </script>
+        </div>
+      </transition>
+    </script>
+
+
+    <script type="text/x-template" id="edit-trip">
+      <transition name="modal">
+        <div class="modal-mask">
+          <div class="modal-wrapper">
+            <div class="modal-container">
+    
+              <div class="modal-header">
+                <slot name="header">
+                  Edit Trip
+                </slot>
+              </div>
+    
+              <div class="modal-body">
+                <slot name="trip-error"></slot>
+                <slot name="body">
+                  <form method="PUT" action="">
+                      <div class="form-group">
+                          <label for="edit-destination-select">Destination:</label>
+                          <select id="edit-destination-select" class="form-control" name="" ref = "destination" :value="trip.destination">
+                            <option value="" selected disabled hidden>Choose destination</option>
+                            <option
+                              v-for = "country in countries"
+                              :key = country.value
+                              :value = country.text
+                              >${ country.text }
+                            </option>
+                          </select>
+                      </div>
+                    <div class="form-group">
+                      <label for="edit-start-date">Start date:</label>
+                      <input class="form-control" type="date" name="" id="edit-start-date" ref="startDate"  :value="trip.start_date">
+                    </div>
+                    <div class="form-group">
+                      <label for="edit-end-date">End date:</label>
+                      <input class="form-control" type="date" name="" id="edit-end-date" ref="endDate" :value="trip.end_date">
+                    </div>
+                    <div class="form-group">
+                      <label for="edit-optional-comment">Comment:</label>
+                      <textarea id="edit-optional-comment" class="form-control" name="" rows="3" ref="comment" :value="trip.comment"></textarea>
+                    </div>
+                  </form>
+                </slot>
+              </div>
+    
+              <div class="modal-footer">
+                <slot name="footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="close">Close</button>
+                  <button type="button" class="btn btn-primary" @click="editTrip">Save</button>
+                </slot>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </script>
+
+
+    <script type="text/x-template" id="delete-trip">
+      <transition name="modal">
+        <div class="modal-mask">
+          <div class="modal-wrapper">
+            <div class="modal-container">
+    
+              <div class="modal-header">
+                <slot name="header">
+                  Delete Trip
+                </slot>
+              </div>
+    
+              <div class="modal-body">
+                <slot name="trip-error"></slot>
+                <slot name="body">
+                  <form method="Delete" action="">
+                    <h2>Delete trip now?!</h2>
+                  </form>
+                </slot>
+              </div>
+    
+              <div class="modal-footer">
+                <slot name="footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="close">Close</button>
+                  <button type="button" class="btn btn-primary" @click="deleteTrip">Delete</button>
+                </slot>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </script>
 {% endblock script %}

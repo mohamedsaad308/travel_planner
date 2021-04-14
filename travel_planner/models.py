@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+from dateutil.relativedelta import relativedelta
 import os
 from flask_user import UserMixin
 from travel_planner import db, login_manager
@@ -142,10 +143,15 @@ class Trip(db.Model):
         db.session.commit()
 
     def format(self):
-        diff = self.start_date - datetime.utcnow()
-        count = diff.days
-        if count < 0:
+        TODAY = date.today()
+        if self.start_date <= datetime.utcnow():
             count = "Passed!"
+        else:
+            time_left = self.start_date - datetime.utcnow()
+            count = time_left.days
+            # count = relativedelta(TODAY, self.start_date, months=int, days=int)
+            # count = (str(abs(count.months)) + ' m ' +
+            #          str(abs(count.days)) + " d")
         return {
             'id': self.id,
             'destination': self.destination,

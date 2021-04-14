@@ -130,7 +130,7 @@ const app = new Vue({
     },
     searchUsers(pageNumber = 1) {
       this.search = this.$refs.userSearch.value;
-      // console.log("search", this.search);
+      this.page = pageNumber;
       fetch(`/api/users?page=${pageNumber}`, {
         method: "POST",
         credentials: "include",
