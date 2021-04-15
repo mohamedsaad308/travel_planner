@@ -74,7 +74,7 @@
               <button type="button" class="page-link"  @click="getPrevious"> Previous </button>
             </li>
             <li class="page-item">
-              <button type="button" class="page-link" v-for="pageNumber in pageNumbers.slice(page-1, page+5)" @click="getCurrentPage(pageNumber)"> ${pageNumber} </button>
+              <button type="button" v-for="pageNumber in pageNumbers.slice(page-1, page+5)" :class="{'highlight' : page==pageNumber, 'page-link':true}" @click="getCurrentPage(pageNumber)"> ${pageNumber} </button>
             </li>
             <li class="page-item" v-if="page < pageNumbers.length">
               <button type="button" @click="getNext" class="page-link"> Next </button>

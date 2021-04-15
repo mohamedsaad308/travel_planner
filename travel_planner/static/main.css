@@ -166,7 +166,7 @@ button.page-link {
 }
 button.page-link {
   font-size: 20px;
-  color: #29b3ed;
+  color: #28ade6;
   font-weight: 500;
 }
 
@@ -176,4 +176,8 @@ button.page-link {
 }
 #add-trip {
   float: left;
+}
+
+.highlight {
+  background-color: #6ad1d1;
 }
